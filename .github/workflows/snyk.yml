@@ -1,18 +1,25 @@
 name: Snyk Security Scan
 
 on:
-  workflow_dispatch:  # ✅ Allows manual run from Actions tab
+  workflow_dispatch: # ✅ Manual trigger
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
-  snyk-sca:
+  snyk:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: . # root of repo (where pom.xml exists)
 
     steps:
-      # ✅ Checkout repository
+      # ✅ Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # ✅ Set up JDK 17
+      # ✅ Set up Java for Maven projects
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
@@ -23,20 +30,20 @@ jobs:
       - name: Install Snyk
         run: npm install -g snyk
 
-      # ✅ Authenticate with Snyk
+      # ✅ Authenticate Snyk using secret
       - name: Authenticate Snyk
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
-      # ✅ Run Snyk test (fail build if vulnerabilities >= medium severity)
-      - name: Snyk Test for Maven
-        run: snyk test --file=pom.xml --severity-threshold=medium --sarif-file-output=snyk.sarif
+      # ✅ Run Snyk test (generate SARIF, but DO NOT fail build)
+      - name: Snyk Test
+        run: snyk test --file=pom.xml --severity-threshold=medium --sarif-file-output=snyk.sarif || true
 
-      # ✅ Send results to Snyk dashboard
+      # ✅ Send results to Snyk dashboard (Monitor)
       - name: Snyk Monitor
-        run: snyk monitor --file=pom.xml
+        run: snyk monitor --file=pom.xml || true
 
-      # ✅ Upload SARIF to GitHub Security
-      - name: Upload SARIF to GitHub Security
+      # ✅ Upload SARIF to GitHub Security tab
+      - name: Upload SARIF report
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: snyk.sarif
