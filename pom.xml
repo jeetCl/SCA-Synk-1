@@ -1,88 +1,90 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.18</version> <!-- Updated to latest LTS for security -->
-		<relativePath/> <!-- lookup parent from repository -->
-	</parent>
-	<groupId>com.scalesec</groupId>
-	<artifactId>vulnado</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>vulnado</name>
-	<description>Demo project for Spring Boot</description>
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<properties>
-		<java.version>11</java.version> <!-- Upgrade Java for security -->
-	</properties>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.18</version> <!-- Latest LTS without breaking changes -->
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
 
-	<dependencies>
-		<!-- Spring Boot Web (Safe Version) -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
+    <groupId>com.scalesec</groupId>
+    <artifactId>vulnado</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>vulnado</name>
+    <description>Secure Demo Project for Spring Boot</description>
 
-		<!-- PostgreSQL (Patched Version) -->
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<version>42.7.3</version> <!-- Latest stable -->
-		</dependency>
+    <properties>
+        <java.version>11</java.version> <!-- Upgrade to supported secure version -->
+    </properties>
 
-		<!-- Jsoup (Latest Secure Version) -->
-		<dependency>
-		    <groupId>org.jsoup</groupId>
-		    <artifactId>jsoup</artifactId>
-		    <version>1.17.2</version>
-		</dependency>
+    <dependencies>
+        <!-- ✅ Spring Boot Web (Secure version) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
 
-		<!-- JWT Library (Patched Version) -->
-		<dependency>
-		    <groupId>io.jsonwebtoken</groupId>
-		    <artifactId>jjwt-api</artifactId>
-		    <version>0.11.5</version>
-		</dependency>
-		<dependency>
-		    <groupId>io.jsonwebtoken</groupId>
-		    <artifactId>jjwt-impl</artifactId>
-		    <version>0.11.5</version>
-		    <scope>runtime</scope>
-		</dependency>
-		<dependency>
-		    <groupId>io.jsonwebtoken</groupId>
-		    <artifactId>jjwt-jackson</artifactId>
-		    <version>0.11.5</version>
-		    <scope>runtime</scope>
-		</dependency>
+        <!-- ✅ PostgreSQL (Latest patched version) -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.3</version>
+        </dependency>
 
-		<!-- Updated dependencies to remove critical CVEs -->
-		<!-- commons-collections removed -->
-		<!-- log4j-core removed (use Spring Boot logging instead) -->
+        <!-- ✅ Jsoup (Patched version, no XSS CVEs) -->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.17.2</version>
+        </dependency>
 
-		<!-- Jackson (Patched Version) -->
-		<dependency>
-		    <groupId>com.fasterxml.jackson.core</groupId>
-		    <artifactId>jackson-databind</artifactId>
-		    <version>2.17.1</version>
-		</dependency>
+        <!-- ✅ JWT Library (Updated, no critical CVEs) -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.11.5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
 
-		<!-- Hibernate (Patched Version) -->
-		<dependency>
-		    <groupId>org.hibernate</groupId>
-		    <artifactId>hibernate-core</artifactId>
-		    <version>6.4.4.Final</version>
-		</dependency>
-	</dependencies>
+        <!-- ✅ Jackson (Secure against deserialization CVEs) -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.17.1</version>
+        </dependency>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
+        <!-- ✅ Hibernate (Patched version, no SQL injection CVEs) -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>6.4.4.Final</version>
+        </dependency>
+
+        <!-- ❌ Removed vulnerable libraries -->
+        <!-- commons-collections (RCE) removed -->
+        <!-- log4j-core (Log4Shell) removed -->
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>
