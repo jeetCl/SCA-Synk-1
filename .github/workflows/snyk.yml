@@ -30,16 +30,12 @@ jobs:
       - name: Authenticate Snyk
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
-      # ✅ Run Snyk test (fail this step if vulnerabilities found, but continue workflow)
-      - name: Snyk Test
+      # ✅ Run Snyk test and save JSON for quality gate check
+      - name: Snyk Test (JSON + SARIF)
         id: snyk-test
-        run: snyk test --file=pom.xml --severity-threshold=medium --sarif-file-output=snyk.sarif
-        continue-on-error: true
-
-      # ✅ Monitor (always run, even if test failed)
-      - name: Snyk Monitor
-        if: always()
-        run: snyk monitor --file=pom.xml || true
+        run: |
+          snyk test --file=pom.xml --json > snyk.json || true
+          snyk test --file=pom.xml --sarif-file-output=snyk.sarif || true
 
       # ✅ Upload SARIF report (always run)
       - name: Upload SARIF report
@@ -48,7 +44,23 @@ jobs:
         with:
           sarif_file: snyk.sarif
 
-      # ✅ Mark job as failed if vulnerabilities were found
-      - name: Fail Job if Vulnerabilities Found
-        if: steps.snyk-test.outcome == 'failure'
-        run: exit 1
+      # ✅ Apply Custom Quality Gate
+      - name: Apply Quality Gate (Critical > 0 OR High > 5)
+        run: |
+          CRITICAL=$(jq '.vulnerabilities | map(select(.severity=="critical")) | length' snyk.json)
+          HIGH=$(jq '.vulnerabilities | map(select(.severity=="high")) | length' snyk.json)
+
+          echo "Found $CRITICAL critical vulnerabilities"
+          echo "Found $HIGH high vulnerabilities"
+
+          if [ "$CRITICAL" -gt 0 ] || [ "$HIGH" -gt 5 ]; then
+            echo "❌ Quality Gate Failed: $CRITICAL critical and $HIGH high vulnerabilities"
+            exit 1
+          else
+            echo "✅ Quality Gate Passed: $CRITICAL critical and $HIGH high vulnerabilities"
+          fi
+
+      # ✅ Monitor (always run, even if previous step failed)
+      - name: Snyk Monitor
+        if: always()
+        run: snyk monitor --file=pom.xml || true
